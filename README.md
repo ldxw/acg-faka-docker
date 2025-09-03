@@ -52,4 +52,6 @@ docker compose up -d --build
 一般都是权限问题。
 如果更新了源码，记得 chmod -R 777 acg-faka
 
+# 以下是原作者仓库
+
 [https://github.com/luochuanyuewu/acg-faka-docker](https://github.com/luochuanyuewu/acg-faka-docker)
