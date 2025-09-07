@@ -12,7 +12,7 @@ on:
           - main
           - custom
       docker_ref:
-        description: "自定义分支或 Tag (仅当 branch_mode=custom 时使用) "
+        description: "自定义分支或 Tag (仅当 branch_mode=custom 时使用)"
         required: false
         default: "template"
         type: string
@@ -149,7 +149,7 @@ jobs:
               TAGS="${TAGS},${IMAGE_DOCKERHUB}:${EXTRA_EFF},${IMAGE_GHCR}:${EXTRA_EFF}"
             fi
 
-            # 推送 latest（控制是否推送）
+            # 控制是否推送 latest 标签
             if [[ "${{ github.event.inputs.push_latest }}" == "true" ]]; then
               TAGS="${TAGS},${IMAGE_DOCKERHUB}:latest,${IMAGE_GHCR}:latest"
             fi
