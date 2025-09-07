@@ -38,23 +38,17 @@ on:
         required: false
         default: "template"
         type: string
-      download_source:
-        description: "是否下载远程压缩包并解压到工作空间 (true/false)"
-        required: true
-        default: "false"
-        type: choice
-        options: ["false", "true"]
-      source_url:
-        description: "远程压缩包 URL (仅当 download_source=true 时使用)"
-        required: false
-        default: "https://wiki.mcy.im/channel/mcy-latest.zip"
-        type: string
       push_latest:
         description: "是否推送默认分支的 latest 标签 (true/false)"
         required: true
         default: "true"
         type: choice
         options: ["false", "true"]
+      source_directory:
+        description: "请输入源码目录 (默认 acg-faka)"
+        required: false
+        default: "acg-faka"
+        type: string
 
 jobs:
   build:
@@ -83,25 +77,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.docker_ref }}
-
-      # 下载并解压远程压缩包
-      - name: Download and Extract Remote Source Code
-        if: ${{ github.event.inputs.download_source == 'true' }}
-        run: |
-          # 获取远程压缩包 URL（可以手动填写）
-          SOURCE_URL="${{ github.event.inputs.source_url }}"
-          
-          # 下载远程压缩包
-          curl -L $SOURCE_URL -o source.zip
-          
-          # 解压压缩包到当前工作目录（解压后文件放到 ./source 目录）
-          unzip source.zip -d ./source
-          
-          # 确保解压后的文件已经成功解压到 ./source 目录
-          ls ./source  # 输出解压后的文件列表以检查
-
-          # 将解压后的文件复制到工作目录（/var/www/html）
-          cp -r ./source/* .
 
       - name: Set up QEMU (多架构)
         uses: docker/setup-qemu-action@v3
@@ -185,6 +160,3 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.tags.outputs.list }}
-          build-args: |
-            DOWNLOAD_SOURCE=${{ github.event.inputs.download_source }}  # 传递是否下载远程压缩包
-            SOURCE_URL=${{ github.event.inputs.source_url }}  # 传递远程压缩包 URL
