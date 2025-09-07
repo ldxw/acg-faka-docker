@@ -2,7 +2,7 @@
 
 # 设置目标目录和备份目录
 TARGET_DIR="/var/www/html"
-BACKUP_DIR="/home/html_backup"
+BACKUP_DIR="/mnt/html_backup"
 
 # 检查挂载目录是否为空
 if [ ! "$(ls -A $TARGET_DIR)" ]; then
