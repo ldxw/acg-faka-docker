@@ -1,0 +1,9 @@
+# 常见的忽略项
+.git
+.gitignore
+.dockerignore
+README.md
+LICENSE
+
+# 忽略 GitHub Actions 配置
+.github
