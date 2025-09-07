@@ -53,12 +53,12 @@ jobs:
       IMAGE_GHCR: ghcr.io/ldxw/acg-faka
 
     steps:
-      # 默认 master
-      - name: Check out repo (master)
-        if: ${{ github.event.inputs.branch_mode == 'master' }}
+      # 默认 main
+      - name: Check out repo (main)
+        if: ${{ github.event.inputs.branch_mode == 'main' }}
         uses: actions/checkout@v4
         with:
-          ref: master
+          ref: main
 
       # 自定义分支/Tag
       - name: Check out repo (custom ref)
@@ -103,8 +103,8 @@ jobs:
           EXTRA_EFF="${EXTRA_EFF//\//-}"
           EXTRA_EFF="$(echo "${EXTRA_EFF}" | tr '[:upper:]' '[:lower:]')"
 
-          if [[ "${MODE}" == "master" ]]; then
-            # master：保留原设计（有 plain latest；版本号/额外标签可独立追加）
+          if [[ "${MODE}" == "main" ]]; then
+            # main：保留原设计（有 plain latest；版本号/额外标签可独立追加）
             TAGS="${IMAGE_DOCKERHUB}:latest,${IMAGE_GHCR}:latest"
 
             if [[ "${{ github.event.inputs.add_version }}" == "true" ]]; then
