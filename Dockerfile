@@ -44,6 +44,7 @@ RUN chmod +x /usr/local/bin/start-chmod.sh
 
 # 确保权限正确
 RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /home/html_backup
 
 # 设置 Apache 配置
 RUN a2enmod rewrite
