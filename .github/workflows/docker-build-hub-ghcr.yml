@@ -1,0 +1,146 @@
+name: Docker 二次元发卡
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch_mode:
+        description: "选择构建分支来源"
+        required: true
+        default: "master"
+        type: choice
+        options:
+          - master
+          - custom
+      docker_ref:
+        description: "自定义分支或 Tag (仅当 branch_mode=custom 时使用) "
+        required: false
+        default: "template"
+        type: string
+      add_version:
+        description: "是否额外打版本号 Tag (true/false)"
+        required: true
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+      version:
+        description: "版本号 (当 add_version=true 时使用)，默认 3.1.0"
+        required: false
+        default: "3.1.0"
+        type: string
+      add_extra_tag:
+        description: "是否额外打“标签-变量”Tag (true/false)"
+        required: true
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+      extra_tag:
+        description: "“标签-变量”的值 (当 add_extra_tag=true 时使用)，默认 template"
+        required: false
+        default: "template"
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    env:
+      IMAGE_DOCKERHUB: ldxw/acg-faka
+      IMAGE_GHCR: ghcr.io/ldxw/acg-faka
+
+    steps:
+      # 默认 master
+      - name: Check out repo (master)
+        if: ${{ github.event.inputs.branch_mode == 'master' }}
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      # 自定义分支/Tag
+      - name: Check out repo (custom ref)
+        if: ${{ github.event.inputs.branch_mode == 'custom' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.docker_ref }}
+
+      - name: Set up QEMU (多架构)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_PUBHUB_USER }}
+          password: ${{ secrets.DOCKER_PUBHUB_PASS }}
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute tags
+        id: tags
+        shell: bash
+        run: |
+          MODE="${{ github.event.inputs.branch_mode }}"
+          TAGS=""
+
+          # 计算变量标签（custom 模式下必有；若未启用 add_extra_tag，则使用默认 template）
+          EXTRA_EFF="${{ github.event.inputs.extra_tag }}"
+          if [[ "${{ github.event.inputs.add_extra_tag }}" != "true" ]]; then
+            EXTRA_EFF="template"
+          fi
+          # 清洗变量标签
+          EXTRA_EFF="${EXTRA_EFF// /-}"
+          EXTRA_EFF="${EXTRA_EFF//\//-}"
+          EXTRA_EFF="$(echo "${EXTRA_EFF}" | tr '[:upper:]' '[:lower:]')"
+
+          if [[ "${MODE}" == "master" ]]; then
+            # master：保留原设计（有 plain latest；版本号/额外标签可独立追加）
+            TAGS="${IMAGE_DOCKERHUB}:latest,${IMAGE_GHCR}:latest"
+
+            if [[ "${{ github.event.inputs.add_version }}" == "true" ]]; then
+              VER="${{ github.event.inputs.version }}"
+              TAGS="${TAGS},${IMAGE_DOCKERHUB}:${VER},${IMAGE_GHCR}:${VER}"
+            fi
+
+            if [[ "${{ github.event.inputs.add_extra_tag }}" == "true" ]]; then
+              TAGS="${TAGS},${IMAGE_DOCKERHUB}:${EXTRA_EFF},${IMAGE_GHCR}:${EXTRA_EFF}"
+            fi
+          else
+            # custom：不推送纯 latest
+            if [[ "${{ github.event.inputs.add_version }}" == "true" ]]; then
+              VER="${{ github.event.inputs.version }}"
+              # 版本号-变量标签
+              TAGS="${IMAGE_DOCKERHUB}:${VER}-${EXTRA_EFF},${IMAGE_GHCR}:${VER}-${EXTRA_EFF}"
+            else
+              # 默认标签-变量标签：这里的“默认标签”按你的规则用 latest 作为基底，但不推送纯 latest
+              TAGS="${IMAGE_DOCKERHUB}:latest-${EXTRA_EFF},${IMAGE_GHCR}:latest-${EXTRA_EFF}"
+            fi
+          fi
+
+          # 保护：custom 模式下若 EXTRA_EFF 为空（理论不会发生），直接报错
+          if [[ "${MODE}" == "custom" && -z "${EXTRA_EFF}" ]]; then
+            echo "::error title=Invalid extra tag::自定义分支构建需要提供变量标签（或使用默认 template）。"
+            exit 1
+          fi
+
+          echo "list=${TAGS}" >> "$GITHUB_OUTPUT"
+          echo "将要推送的 tags: ${TAGS}"
+
+      - name: Build and push (multi-arch)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.tags.outputs.list }}
