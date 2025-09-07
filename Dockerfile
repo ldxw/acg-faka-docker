@@ -30,10 +30,11 @@ COPY acg-faka/ /var/www/html
 RUN mkdir -p /home/html_backup
 
 # 将 /var/www/html 目录备份到 /home/html_backup
-RUN cp -a /var/www/html/. /home/html_backup
+# RUN cp -a /var/www/html/. /home/html_backup
+COPY acg-faka/ /home/html_backup
 
 # 复制 .htaccess 文件到容器内的正确位置
-#COPY .htaccess /var/www/html/.htaccess
+# COPY .htaccess /var/www/html/.htaccess
 
 # 复制 start-chmod.sh 脚本到容器中
 COPY start-chmod.sh /usr/local/bin/start-chmod.sh
