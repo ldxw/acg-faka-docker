@@ -29,9 +29,17 @@ COPY acg-faka /var/www/html
 # 复制 .htaccess 文件到容器内的正确位置
 #COPY .htaccess /var/www/html/.htaccess
 
+# 复制 start-chmod.sh 脚本到容器中
+COPY start-chmod.sh /usr/local/bin/start-chmod.sh
+
+# 赋予脚本执行权限
+RUN chmod +x /usr/local/bin/start-chmod.sh
+
 # 确保权限正确
 RUN chown -R www-data:www-data /var/www/html
 
 # 设置 Apache 配置
 RUN a2enmod rewrite
-RUN chown -R www-data:www-data /var/www/html
+
+# 容器启动时执行 start-chmod.sh 脚本
+CMD ["sh", "-c", "/usr/local/bin/start-chmod.sh && apache2-foreground"]
