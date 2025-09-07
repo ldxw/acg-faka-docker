@@ -26,6 +26,9 @@ RUN if [ "$DOWNLOAD_SOURCE" = "true" ]; then \
 # 如果选择不下载远程压缩包，则复制默认的应用代码
 COPY acg-faka /var/www/html
 
+# 备份 /var/www/html 目录到容器中的备份目录
+RUN cp -r /var/www/html /home/html_backup
+
 # 复制 .htaccess 文件到容器内的正确位置
 #COPY .htaccess /var/www/html/.htaccess
 
