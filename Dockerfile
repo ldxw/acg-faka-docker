@@ -26,12 +26,12 @@ RUN if [ "$DOWNLOAD_SOURCE" = "true" ]; then \
 # 如果选择不下载远程压缩包，则复制默认的应用代码
 COPY acg-faka/ /var/www/html
 
-# 显式创建 /home/html_backup 目录
-RUN mkdir -p /home/html_backup
+# 显式创建 /mnt/html_backup 目录
+RUN mkdir -p /mnt/html_backup
 
 # 将 /var/www/html 目录备份到 /home/html_backup
 # RUN cp -a /var/www/html/. /home/html_backup
-COPY acg-faka/ /home/html_backup
+COPY acg-faka/ /mnt/html_backup
 
 # 复制 .htaccess 文件到容器内的正确位置
 # COPY .htaccess /var/www/html/.htaccess
@@ -44,7 +44,7 @@ RUN chmod +x /usr/local/bin/start-chmod.sh
 
 # 确保权限正确
 RUN chown -R www-data:www-data /var/www/html
-RUN chown -R www-data:www-data /home/html_backup
+RUN chown -R www-data:www-data /mnt/html_backup
 
 # 设置 Apache 配置
 RUN a2enmod rewrite
