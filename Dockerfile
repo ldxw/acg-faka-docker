@@ -24,7 +24,7 @@ RUN if [ "$DOWNLOAD_SOURCE" = "true" ]; then \
     fi
 
 # 如果选择不下载远程压缩包，则复制默认的应用代码
-COPY acg-faka /var/www/html
+COPY acg-faka/ /var/www/html
 
 # 显式创建 /home/html_backup 目录
 RUN mkdir -p /home/html_backup
