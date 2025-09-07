@@ -14,6 +14,9 @@ RUN apt-get update && apt-get install -y \
 # 复制应用代码到容器内部
 COPY acg-faka /var/www/html
 
+# 确保权限正确
+RUN chown -R www-data:www-data /var/www/html
+
 # 设置 Apache 配置
 RUN a2enmod rewrite
 RUN chown -R www-data:www-data /var/www/html
