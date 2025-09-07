@@ -41,5 +41,5 @@ RUN chown -R www-data:www-data /var/www/html
 # 设置 Apache 配置
 RUN a2enmod rewrite
 
-# 容器启动时执行 start-chmod.sh 脚本
-CMD ["sh", "-c", "/usr/local/bin/start-chmod.sh && apache2-foreground"]
+# 使用 ENTRYPOINT 来执行脚本并启动 Apache
+ENTRYPOINT ["sh", "-c", "/usr/local/bin/start-chmod.sh && apache2-foreground"]
