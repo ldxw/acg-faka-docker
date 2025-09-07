@@ -16,16 +16,18 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql zip sockets
 
-# 复制应用代码或远程下载并解压文件
-# 如果选择下载远程压缩包
+# 判断是否下载远程压缩包
 RUN if [ "$DOWNLOAD_SOURCE" = "true" ]; then \
         curl -L $SOURCE_URL -o source.zip && \
         unzip source.zip -d /var/www/html && \
         rm source.zip; \
-    else \
-        # 否则复制默认的应用代码
-        COPY acg-faka /var/www/html; \
     fi
+
+# 如果选择不下载远程压缩包，则复制默认的应用代码
+COPY acg-faka /var/www/html
+
+# 复制 .htaccess 文件到容器内的正确位置
+#COPY .htaccess /var/www/html/.htaccess
 
 # 确保权限正确
 RUN chown -R www-data:www-data /var/www/html

@@ -182,3 +182,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.tags.outputs.list }}
+          build-args: |
+            DOWNLOAD_SOURCE=${{ github.event.inputs.download_source }}  # 传递是否下载远程压缩包
+            SOURCE_URL=${{ github.event.inputs.source_url }}  # 传递远程压缩包 URL
