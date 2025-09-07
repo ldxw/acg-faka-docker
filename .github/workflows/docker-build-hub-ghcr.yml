@@ -94,10 +94,13 @@ jobs:
           # 下载远程压缩包
           curl -L $SOURCE_URL -o source.zip
           
-          # 解压压缩包到当前工作目录
+          # 解压压缩包到当前工作目录（解压后文件放到 ./source 目录）
           unzip source.zip -d ./source
           
-          # 复制解压后的文件到工作目录
+          # 确保解压后的文件已经成功解压到 ./source 目录
+          ls ./source  # 输出解压后的文件列表以检查
+
+          # 将解压后的文件复制到工作目录（/var/www/html）
           cp -r ./source/* .
 
       - name: Set up QEMU (多架构)
