@@ -23,18 +23,16 @@ RUN if [ "$DOWNLOAD_SOURCE" = "true" ]; then \
         rm source.zip; \
     fi
 
-# 如果选择不下载远程压缩包，则复制默认的应用代码
-COPY acg-faka/ /var/www/html
+# 如果没有下载远程源码，则复制本地的应用代码
+RUN if [ "$DOWNLOAD_SOURCE" = "false" ]; then \
+        cp -a /acg-faka/. /var/www/html/; \
+    fi
 
-# 显式创建 /mnt/html_backup 目录
+# 显式创建备份目录
 RUN mkdir -p /mnt/html_backup
 
-# 将 /var/www/html 目录备份到 /home/html_backup
-# RUN cp -a /var/www/html/. /home/html_backup
-COPY acg-faka/ /mnt/html_backup
-
-# 复制 .htaccess 文件到容器内的正确位置
-# COPY .htaccess /var/www/html/.htaccess
+# 备份 /var/www/html 到 /mnt/html_backup
+RUN cp -a /var/www/html/. /mnt/html_backup/
 
 # 复制 start-chmod.sh 脚本到容器中
 COPY start-chmod.sh /usr/local/bin/start-chmod.sh
