@@ -161,4 +161,4 @@ jobs:
           push: true
           tags: ${{ steps.tags.outputs.list }}
           build-args: |
-            SOURCE_DIR=${{ github.event.inputs.source_directory }}  # 传递源码目录
+            SOURCE_DIR=${{ github.event.inputs.source_directory }}
