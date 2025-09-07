@@ -6,10 +6,10 @@ on:
       branch_mode:
         description: "选择构建分支来源"
         required: true
-        default: "master"
+        default: "main"
         type: choice
         options:
-          - master
+          - main
           - custom
       docker_ref:
         description: "自定义分支或 Tag (仅当 branch_mode=custom 时使用) "
