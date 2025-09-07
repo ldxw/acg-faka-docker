@@ -21,7 +21,7 @@ RUN mkdir -p /mnt/acg-faka-bak
 # 复制本地构建的源码到html目录
 COPY ${SOURCE_DIR}/ /var/www/html
 
-# 复制文件到目标目录
+# 复制文件到目标目录（备份目录）
 RUN cp -a /var/www/html/. /mnt/acg-faka-bak
 
 # 复制 start-chmod.sh 脚本到容器中
