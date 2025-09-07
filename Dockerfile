@@ -29,8 +29,8 @@ COPY acg-faka /var/www/html
 # 显式创建 /home/html_backup 目录
 RUN mkdir -p /home/html_backup
 
-# 将 acg-faka 目录备份到 /home/html_backup
-COPY acg-faka /home/html_backup
+# 将 /var/www/html 目录备份到 /home/html_backup
+RUN cp -a /var/www/html/. /home/html_backup
 
 # 复制 .htaccess 文件到容器内的正确位置
 #COPY .htaccess /var/www/html/.htaccess
